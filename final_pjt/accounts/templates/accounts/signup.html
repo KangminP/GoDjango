@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% load bootstrap4 %}
+
+{% block content %}
+  <h2>SIGNUP</h2>
+  <form action="" method="POST" class="form">
+    {% csrf_token %}
+    {% bootstrap_form form layout="inline" %}
+    <div class="d-flex justify-content-end">
+      {% buttons %}
+      <button type="submit" class="btn btn-sm btn-dark mx-2">CONFIRM</button>
+      <a class="btn btn-sm btn-dark" href="{% url 'movies:home' %}" role="button">BACK</a>
+      {% endbuttons %}
+    </div>
+  </form>
+{% endblock %}

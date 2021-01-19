@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+
+{% load bootstrap_pagination %}
+
+{% block content %}
+<h1 class="d-flex justify-content-center py-5 text-dark">MY LIST</h1>
+
+{% if not my_movies and not my_reviews %}
+<div class="alert alert-danger text-center" role="alert">
+    좋아하는 영화 리스트와 리뷰 리스트가 없습니다.
+</div>
+
+
+{% elif not my_movies and my_reviews %}
+<h3 class="mb-3">MOVIE LIST</h3>
+<div class="alert alert-danger text-center" role="alert">
+    좋아하는 영화 리스트가 없습니다.
+</div>
+
+<hr>
+<h3 class="mb-3">REVIEW LIST</h3>
+<table class="table">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col"></th>
+        <th scope="col">제목</th>
+        <th scope="col">글쓴이</th>
+        <th scope="col">작성일자</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for review in page_obj2 %}
+      <tr>
+        <th scope="row">{{ review.pk }}</th>
+        <td><a class="text-body" href="{% url 'reviews:detail_review' review.pk %}">{{ review.title }}</a></td>
+        <td>{{ review.review_user }}</td>
+        <td>{{ review.updated_at|date:'y.m.d G:i' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+</table>
+
+<div class="d-flex justify-content-center mt-5 mb-2">
+    {% bootstrap_paginate page_obj2 range=5 show_prev_next="true" show_first_last="true" %}
+</div>
+
+
+{% elif my_movies and not my_reviews %}
+<h3 class="mb-3">MOVIE LIST</h3>
+<div class="row row-cols-1 row-cols-md-3">
+    {% for movie in page_obj %}
+        <div class="col-sm-6 col-md-4 col-lg-3 mb-4">
+            <div class="card h-100">
+              <div class="position-relative">
+                <a href="{% url 'movies:movie_detail' movie.pk %}">
+                  <img src="{{ movie.poster_path }}" class="card-img-top" alt="movie_poster">
+                </a>
+                {% if user in movie.like_users.all %}
+                    <i class="like-btn fas fa-heart fa-2x position-absolute" style="bottom: 10px; right: 10px; color:#dc3545; cursor:pointer;" data-pk="{{ movie.pk }}"></i>
+                {% else %}
+                    <i class="like-btn far fa-heart fa-2x d-flex position-absolute" style="bottom: 10px; right: 10px; color:#dc3545; cursor:pointer;" data-pk="{{ movie.pk }}"></i>
+                {% endif %}
+              </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ movie.title }} <span class="badge badge-info">{{ movie.vote_average }}</span></h5>
+                    <p class="card-text">개봉일 : {{ movie.release_date }}<br><i class="fas fa-vote-yea"></i> {{ movie.popularity }}</p>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<div class="d-flex justify-content-center mt-5 mb-2">
+    {% bootstrap_paginate page_obj range=5 show_prev_next="true" show_first_last="true" %}
+</div>
+
+<hr>
+<h3 class="mb-3">REVIEW LIST</h3>
+<div class="alert alert-danger text-center" role="alert">
+    좋아하는 리뷰 리스트가 없습니다.
+</div>
+
+<script>
+const likeBtns = document.querySelectorAll('.like-btn')
+likeBtns.forEach(function(btn){
+  btn.addEventListener('click', function(event){
+    axios.get(`/movies/${btn.dataset.pk}/like/`)
+        .then(function(res){
+            console.log(res.data)
+            if (res.data.liked){
+                event.target.classList.remove('far')
+                event.target.classList.add('fas')
+            } else {
+                event.target.classList.remove('fas')
+                event.target.classList.add('far')
+            }
+        })
+        .catch(function(err){
+            console.log(err)
+        })
+  })
+})
+</script>
+
+{% elif my_movies and my_reviews %}
+<h3 class="mb-3">MOVIE LIST</h3>
+<div class="row row-cols-1 row-cols-md-3">
+    {% for movie in page_obj %}
+        <div class="col-sm-6 col-md-4 col-lg-3 mb-4">
+            <div class="card h-100">
+              <div class="position-relative">
+                <a href="{% url 'movies:movie_detail' movie.pk %}">
+                  <img src="{{ movie.poster_path }}" class="card-img-top" alt="movie_poster">
+                </a>
+                {% if user in movie.like_users.all %}
+                    <i class="like-btn fas fa-heart fa-2x position-absolute" style="bottom: 10px; right: 10px; color:#dc3545; cursor:pointer;" data-pk="{{ movie.pk }}"></i>
+                {% else %}
+                    <i class="like-btn far fa-heart fa-2x d-flex position-absolute" style="bottom: 10px; right: 10px; color:#dc3545; cursor:pointer;" data-pk="{{ movie.pk }}"></i>
+                {% endif %}
+              </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ movie.title }} <span class="badge badge-info">{{ movie.vote_average }}</span></h5>
+                    <p class="card-text">개봉일 : {{ movie.release_date }}<br><i class="fas fa-vote-yea"></i> {{ movie.popularity }}</p>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<div class="d-flex justify-content-center mt-5 mb-2">
+    {% bootstrap_paginate page_obj range=5 show_prev_next="true" show_first_last="true" %}
+</div>
+
+<hr>
+<h3 class="mb-3">REVIEW LIST</h3>
+<table class="table">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col"></th>
+        <th scope="col">제목</th>
+        <th scope="col">글쓴이</th>
+        <th scope="col">작성일자</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for review in page_obj2 %}
+      <tr>
+        <th scope="row">{{ review.pk }}</th>
+        <td><a class="text-body" href="{% url 'reviews:detail_review' review.pk %}">{{ review.title }}</a></td>
+        <td>{{ review.review_user }}</td>
+        <td>{{ review.updated_at|date:'y.m.d G:i' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+</table>
+
+<div class="d-flex justify-content-center mt-5 mb-2">
+    {% bootstrap_paginate page_obj2 range=5 show_prev_next="true" show_first_last="true" %}
+</div>
+
+<script>
+    const likeBtns = document.querySelectorAll('.like-btn')
+    likeBtns.forEach(function(btn){
+      btn.addEventListener('click', function(event){
+        axios.get(`/movies/${btn.dataset.pk}/like/`)
+            .then(function(res){
+                console.log(res.data)
+                if (res.data.liked){
+                    event.target.classList.remove('far')
+                    event.target.classList.add('fas')
+                } else {
+                    event.target.classList.remove('fas')
+                    event.target.classList.add('far')
+                }
+            })
+            .catch(function(err){
+                console.log(err)
+            })
+      })
+    })
+</script>
+
+
+{% endif %}
+
+{% endblock %}

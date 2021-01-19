@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% load bootstrap4 %}
+
+{% block content %}
+<h1 class="d-flex justify-content-center py-5 text-dark">REVIEW DETAIL</h1>
+
+<div class="h-50 p-3 m-3">
+  <div class="d-flex justify-content-between">
+    <h3>{{ review.title }}</h3>
+      <div>
+        {% if user in review.like_users.all %}
+            <i id="like-btn" class="fas fa-heart fa-1x" data-pk="{{ review.pk }}" style="color:#343a40; cursor:pointer;"></i>
+        {% else %}
+            <i id="like-btn" class="far fa-heart fa-1x" data-pk="{{ review.pk }}" style="color:#343a40; cursor:pointer;"></i>
+        {% endif %}
+      </div>
+  </div>
+  <hr>
+  <div style="height: 200px;">
+    <p>{{ review.content }}</p>
+  </div>
+  <hr>
+    <p>작성자: <a href="{% url 'accounts:send_msg' review.review_user_id %}">{{ review.review_user }}</a><span class="float-right">작성일: {{ review.created_at|date:'Y.m.d G:i' }}&nbsp; | &nbsp;수정일: {{ review.updated_at|date:'Y.m.d G:i' }}</span></p>
+</div>
+
+<div class="h-50 p-3 m-3">
+{% if user == review.review_user %}
+  <a href="{% url 'reviews:update_review' review.pk %}" class="btn btn-primary btn-sm active" role="button">EDIT</a>
+  <a href="{% url 'reviews:delete_review' review.pk %}" class="btn btn-danger btn-sm active" role="button">DELETE</a>
+{% endif %}
+  <a href="{% url 'reviews:index' %}" class="btn btn-secondary btn-sm active float-right" role="button">BACK</a>
+</div>
+
+<div class="h-50 p-3 m-3">
+{% for com in review.comment_set.all %}
+  <div class="ml-2">
+    <a href="{% url 'accounts:send_msg' review.review_user_id %}">{{ com.comment_user }}</a>: {{ com.content }}
+    <span class="float-right">
+      <form action="{% url 'reviews:delete_comment' review.pk com.pk %}" method="POST">
+        {% csrf_token %}
+        {% if user == com.comment_user %}
+        <button role="button" class="btn btn-light btn-sm">X</button>
+        {% endif %}
+      </form>
+    </span>
+  </div>
+  <br>
+{% endfor %}
+<form action="{% url 'reviews:create_comment' review.pk %}" method="POST">
+  {% csrf_token %}
+  {% bootstrap_form comment_form layout="inline" %}
+  <button role="button" class="btn btn-light btn-sm float-right mb-5">REPLY</button>
+</form>
+</div>
+
+<script>
+  const likeBtn = document.getElementById('like-btn')
+  likeBtn.addEventListener('click', function(event){
+    axios.get(`/reviews/${likeBtn.dataset.pk}/like/`)
+        .then(function(res){
+            if (res.data.liked){
+                event.target.classList.remove('far')
+                event.target.classList.add('fas')
+            } else {
+                event.target.classList.remove('fas')
+                event.target.classList.add('far')
+            }
+        })
+        .catch(function(err){
+            console.log(err)
+        })
+  })
+</script>
+
+{% endblock %}

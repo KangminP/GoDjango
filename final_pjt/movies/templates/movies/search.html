@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% load bootstrap_pagination %}
+
+{% block content %}
+<h1 class="d-flex justify-content-center py-5 text-dark">MOVIE LIST</h1>
+
+<h3 class="mb-4"><i class="fas fa-poll-h"></i>&nbsp;SEARCH RESULT: {{ word }}</h3>
+
+{% if not word %}
+<div class="alert alert-danger text-center" role="alert">
+  검색어를 입력해주세요.
+</div>
+
+{% elif not movie_lst %}
+<div class="alert alert-warning text-center" role="alert">
+  {{ failure }}
+</div>
+
+{% else %}
+<div class="alert alert-secondary mb-4 text-center" role="alert">
+  검색 관련 영화 리스트입니다.
+</div>
+
+<div id="carouselExampleControls" class="carousel slide mb-5" data-ride="carousel">
+  <div class="carousel-inner">
+
+    <ol class="carousel-indicators">
+        <li data-target="#carouselExampleCaptions" data-slide-to="0" class="active"></li>
+        {% for cnt in movies_tops %}
+          <li data-target="#carouselExampleCaptions" data-slide-to="{{ forloop.counter }}"></li>
+        {% endfor %}
+    </ol>
+
+    <div class="carousel-item active">
+      <a href="{% url 'movies:movie_detail' movies_top.pk %}">
+        <img src="{{ movies_top.backdrop_path }}" class="d-block w-100" alt="movie_backdrop">
+      </a>
+      <div class="carousel-caption d-none d-md-block">
+        <h5>{{ movies_top.title }}</h5>
+        <p>{{ movies_top.tagline }}</p>
+        <p>{{ movies_top.release_date }}</p>
+      </div>
+    </div>
+
+    {% for mov in movies_tops %}
+    <div class="carousel-item">
+      <a href="{% url 'movies:movie_detail' mov.pk %}">
+        <img src="{{ mov.backdrop_path }}" class="d-block w-100" alt="movie_backdrop">
+      </a>
+      <div class="carousel-caption d-none d-md-block">
+        <h5>{{ mov.title }}</h5>
+        <p>{{ mov.tagline }}</p>
+        <p>{{ mov.release_date }}</p>
+      </div>
+    </div>
+    {% endfor %}
+
+  </div>
+  <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="sr-only">Previous</span>
+  </a>
+  <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="sr-only">Next</span>
+  </a>
+</div>
+
+<table class="table table-striped mb-5">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">TITLE</th>
+      <th scope="col">ORIGINAL TITLE</th>
+      <th scope="col">OVERVIEW</th>
+      <th scope="col">LIKE</th>
+      <th scope="col">RANK</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for movie in page_obj %}
+    <tr>
+      <th scope="row">{{ forloop.counter }}</th>
+      <td><a href="{% url 'movies:movie_detail' movie.pk %}">{{ movie.title }}</a></td>
+      <td>{{ movie.original_title|truncatechars:30 }}</td>
+      <td>{{ movie.overview|truncatechars:35 }}</td>
+      <td>
+        {% if user in movie.like_users.all %}
+            <i class="like-btn fas fa-heart fa-lg d-flex align-items-center" data-pk="{{ movie.pk }}" style="color:#343a40; cursor:pointer;"></i>
+        {% else %}
+            <i class="like-btn far fa-heart fa-lg d-flex align-items-center" data-pk="{{ movie.pk }}" style="color:#343a40; cursor:pointer;"></i>
+        {% endif %}
+      </td>
+      <td><span class="text-danger">★ </span>{{ movie.vote_average }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="d-flex justify-content-center mt-5 mb-2">
+    {% bootstrap_paginate page_obj range=5 show_prev_next="true" show_first_last="true" %}
+</div>
+{% endif %}
+
+<script>
+const likeBtns = document.querySelectorAll('.like-btn')
+likeBtns.forEach(function(btn){
+  btn.addEventListener('click', function(event){
+    axios.get(`/movies/${btn.dataset.pk}/like/`)
+        .then(function(res){
+            console.log(res.data)
+            if (res.data.liked){
+                event.target.classList.remove('far')
+                event.target.classList.add('fas')
+            } else {
+                event.target.classList.remove('fas')
+                event.target.classList.add('far')
+            }
+        })
+        .catch(function(err){
+            console.log(err)
+        })
+  })
+})
+</script>
+
+{% endblock %}

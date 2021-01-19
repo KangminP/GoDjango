@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 class="d-flex justify-content-center py-5 text-dark">RECOMMEND LIST</h1>
+
+<div id="carouselRecommendCaptions" class="carousel slide mb-5" data-ride="carousel">
+  <div class="carousel-inner">
+    <ol class="carousel-indicators">
+        <li data-target="#carouselRecommendCaptions" data-slide-to="0" class="active"></li>
+        {% for cnt in movies_top2 %}
+            <li data-target="#carouselRecommendCaptions" data-slide-to="{{ forloop.counter }}"></li>
+        {% endfor %}
+    </ol>
+
+    <div class="carousel-item active">
+      <a href="{% url 'movies:movie_detail' movies_top.pk %}">
+        <img src="{{ movies_top.backdrop_path }}" class="d-block w-100" alt="movie_backdrop">
+      </a>
+      <div class="carousel-caption d-none d-md-block">
+        <h5>{{ movies_top.title }}</h5>
+        <p>{{ movies_top.tagline }}</p>
+        <p>{{ movies_top.release_date }}</p>
+      </div>
+    </div>
+
+    {% for mov in movies_top2 %}
+    <div class="carousel-item">
+      <a href="{% url 'movies:movie_detail' mov.pk %}">
+        <img src="{{ mov.backdrop_path }}" class="d-block w-100" alt="movie_backdrop">
+      </a>
+      <div class="carousel-caption d-none d-md-block">
+        <h5>{{ mov.title }}</h5>
+        <p>{{ mov.tagline }}</p>
+        <p>{{ mov.release_date }}</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  
+  <a class="carousel-control-prev" href="#carouselRecommendCaptions" role="button" data-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="sr-only">Previous</span>
+  </a>
+  <a class="carousel-control-next" href="#carouselRecommendCaptions" role="button" data-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="sr-only">Next</span>
+  </a>
+</div>
+
+<h5 class="text-center">재밌게 본 영화를 '좋아요'하면 취향에 맞는 영화를 추천 받을 수 있습니다 :)</h5>
+
+{% endblock %}

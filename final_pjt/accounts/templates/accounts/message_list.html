@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <h1 class="d-flex justify-content-center py-5 text-dark">MESSAGE LIST</h1>
+
+    <h3>RECEIVE</h3>
+
+    <table class="table">
+      <thead class="thead-light">
+        <tr>
+          <th scope="col">SEND USER</th></th>
+          <th scope="col">MESSAGE</th>
+          <th scope="col">TIME</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for rec in received_list %}
+        <tr>
+          <th scope="row"><a href="{% url 'accounts:send_msg' send_user.pk %}">{{ rec.send_user }}</a></th>
+          <td>{{ rec.content }}</td>
+          <td>{{ rec.sent_at|date:'y/m/d G:i' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <hr>
+
+    <h3>SEND</h3>
+
+    <table class="table">
+      <thead class="thead-light">
+        <tr>
+          <th scope="col">RECEIVE USER</th></th>
+          <th scope="col">MESSAGE</th>
+          <th scope="col">TIME</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sen in sent_list %}
+        <tr>
+          <th scope="row"><a href="{% url 'accounts:send_msg' sen.receive_user.pk %}">{{ sen.receive_user }}</a></th>
+          <td>{{ sen.content }}</td>
+          <td>{{ sen.sent_at|date:'y/m/d G:i' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+{% endblock %}

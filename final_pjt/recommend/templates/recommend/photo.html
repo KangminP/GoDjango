@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% load bootstrap4 %}
+
+{% block content %}
+<h1 class="mb-5 text-center">얼굴이 잘 나온 사진을 올려주세요 :)</h1>
+<form action="" method="POST" enctype="multipart/form-data" class="d-flex justify-content-center">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    {% buttons %}
+      <button type="submit" class="btn btn-dark btn-sm">
+        사진 제출
+      </button>
+    {% endbuttons %}
+</form>
+{% endblock %}

@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% load bootstrap_pagination %}
+
+{% block content %}
+<h1 class="d-flex justify-content-center py-5">MOVIE DETAIL</h1>
+
+<div class="p-5 mb-5 jumbotron">
+    <div class="row p-3 mb-3">
+        <div class="col-md-6 align-item-center">
+            <img src="{{ movie.poster_path }}" class="align-item-center" style="height: auto; max-width: 100%;">
+        </div>
+
+        <div class="col-md-6 pl-4">
+            <input type="hidden" id="movie-title" value="{{ movie.original_title }}">
+            <h1>{{ movie.title }} ({{ movie.release_date|date:"Y" }})</h1>
+            <p>{{ movie.release_date|date:"Y/m/d" }}({{ movie.production_countrie }}) | {{ movie.director }} | {{ movie.runtime }}분</p>
+
+            {% for genre in movie.genres.all %}
+            <span class="badge badge-dark">{{ genre.name }}</span>
+            {% endfor %}
+
+            <div class="float-right">
+                <!-- 트레일러 -->
+                <button type="button" class="btn btn-link p-0" data-toggle="modal" data-target="#trailerModal">
+                    <i id="play-btn" class="far fa-play-circle" style="color:#343a40; cursor:pointer;"></i>
+                </button>
+                
+                <div class="modal fade" id="trailerModal" tabindex="-1" role="dialog" aria-labelledby="trailerModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="trailerModalLabel">{{ movie.title }} ({{ movie.release_date|date:"Y" }})</h5>
+                        <button type="button" id="x-button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div id="modal-body" class="modal-body p-0 embed-responsive embed-responsive-16by9">
+                        
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" id="close-button" class="btn btn-secondary" data-dismiss="modal">CLOSE</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- 좋아요 기능 -->
+                {% if user in movie.like_users.all %}
+                    <button type="button" class="btn btn-link p-0">
+                        <i id="like-btn" class="fas fa-heart fa-1x" data-pk="{{ movie.pk }}" style="color:#343a40; cursor:pointer;"></i>
+                    </button>
+                {% else %}
+                    <button type="button" class="btn btn-link p-0">
+                        <i id="like-btn" class="far fa-heart fa-1x" data-pk="{{ movie.pk }}" style="color:#343a40; cursor:pointer;"></i>
+                    </button>
+                {% endif %}
+            </div>
+
+            <hr>
+
+            {% if movie.tagline %}
+            <h4>{{ movie.tagline }}</h4>
+            {% endif %}
+
+            {% if movie.overview %}
+            <div style="height: 320px; overflow: auto;">
+                <p>{{ movie.overview }}</p>
+            </div>
+            {% else %}
+        
+            <div style="height: 400px;">
+                <p>아직 등록된 영화 overview가 없습니다</p>
+            </div>
+            {% endif %}
+
+            <hr>
+
+            <p>
+                LIKE : {{ movie.like_users.all.count }} | <span class="text-danger">★</span> {{ movie.vote_average }}
+            </p>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="d-flex justify-content-end mr-2">
+        <a href="{% url 'movies:related_reviews' movie.pk %}" class="btn btn-dark btn-sm">REVIEWS</a> &nbsp;
+        <a href="{% url 'movies:home' %}" class="btn btn-dark btn-sm">BACK</a>
+    </div>
+</div>
+
+<script>
+    // 영화 좋아요 기능 구현
+    const likeBtn = document.getElementById('like-btn')
+    likeBtn.addEventListener('click', function(event){
+      axios.get(`/movies/${likeBtn.dataset.pk}/like/`)
+          .then(function(res){
+              if (res.data.liked){
+                  event.target.classList.remove('far')
+                  event.target.classList.add('fas')
+              } else {
+                  event.target.classList.remove('fas')
+                  event.target.classList.add('far')
+              }
+          })
+          .catch(function(err){
+              console.log(err)
+          })
+    })
+
+    // 예고편 보기 기능 구현
+    const API_URL = 'https://www.googleapis.com/youtube/v3/search'
+    const API_YOUTUBE_KEY = process.env.VUE_APP_YOUTUBE_API_KEY
+
+    const playBtn = document.getElementById('play-btn')
+    playBtn.addEventListener('click', function(evnet){
+        const movieTitle = document.getElementById('movie-title')
+        axios.get(API_URL, {
+            params: {
+                key: API_YOUTUBE_KEY,
+                part: 'snippet',
+                q: `${movieTitle.value} trailer`,
+                type: 'video',
+            }
+        })
+            .then(res => {
+                const videoUrl = `https://www.youtube.com/embed/${res.data.items[0].id.videoId}`
+                const modalBody = document.getElementById('modal-body')
+                const iframe = document.createElement('iframe')
+                iframe.src = videoUrl
+                iframe.classList.add('embed-responsive-item')
+                iframe.scrolling = 'auto'
+                iframe.setAttribute('frameborder', '0')
+                iframe.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'
+                iframe.setAttribute('allowfullscreen', true)
+                modalBody.append(iframe)
+                modalBody.append(document.createElement('br'))
+            })
+    })
+
+    const xBtn = document.getElementById('x-button')
+    const closeBtn = document.getElementById('close-button')
+
+    function resetModal() {
+        const modalBody = document.getElementById('modal-body')
+        while ( modalBody.hasChildNodes() ) {
+                modalBody.removeChild( modalBody.firstChild ); 
+        }
+    }
+
+    xBtn.addEventListener('click', resetModal)
+    closeBtn.addEventListener('click', resetModal)
+    
+</script>
+{% endblock %}

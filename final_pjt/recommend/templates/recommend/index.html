@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+<div class="d-flex flex-column align-content-center justify-content-center">
+    <img src="{% static 'images/recommend.png' %}" alt="poster_pic">
+    <a class="btn btn-dark btn-lg btn-block mt-5 mb-3" href="{% url 'recommend:like' %}" role="button">좋아요 한 영화를 바탕으로 다른 영화 추천 받기</a>
+    <a class="btn btn-dark btn-lg btn-block" href="{% url 'recommend:photo' %}" role="button">내 사진으로 영화 추천 받기</a>
+</div>
+
+{% endblock %}

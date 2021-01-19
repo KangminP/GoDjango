@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% load bootstrap4 %}
+
+{% block content %}
+  <h2>Create Review</h2>
+  <form action="" method="POST" class="form mt-4">
+    <!-- review writing -->
+    {% csrf_token %}
+    {% bootstrap_form review_form layout="inline" %}
+    <div class="d-flex justify-content-end">
+      {% buttons %}
+      <button type="submit" class="btn btn-sm btn-dark mx-2">CONFIRM</button>
+      <a class="btn btn-sm btn-dark" href="{% url 'reviews:index' %}" role="button">BACK</a>
+      {% endbuttons %}
+    </div>
+  </form>
+{% endblock %}

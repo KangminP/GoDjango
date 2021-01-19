@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% load bootstrap4 %}
+
+{% block content %}
+    <div>
+        <h2>리뷰 쓸 영화 검색</h2>
+        <form action="" class="mt-4" method="POST">
+          {% csrf_token %}
+            <input type="text" id="movie-input" required disabled>
+            <input type="hidden" id="movie-hidden-input">
+            <span class="btn btn-sm btn-dark ml-2" style="cursor:pointer" data-toggle="modal" data-target="#movieSearchModal">
+              SEARCH
+            </span>
+            <hr>
+            <div class="mt-2 d-flex justify-content-end" id="form-div">
+
+            </div>
+        </form>
+    
+        <div class="modal fade" id="movieSearchModal" tabindex="-1" role="dialog" aria-labelledby="movieSearchModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Movie Search</h5>
+                <button type="button" id="close-button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div id='#search'>
+                  <input type="text" placeholder="Movie Search" id="search-input">
+                  <span class="btn btn-sm btn-dark" style="cursor:pointer" id="search-button">SEARCH</span>
+                  <ul class="mt-1"style="list-style-type: square;">
+                    <li>리뷰를 작성할 영화의 제목을 검색해주세요.</li>
+                  </ul>
+                  <div id="result-movie">
+                  </div>
+                </div>
+              </div>
+              <div id="save-button-div" class="modal-footer">
+                <button type="button" id="save-button" class="btn btn-sm btn-dark" data-dismiss="modal">SAVE</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+    </div>
+
+    <script>
+
+        const searchButton = document.getElementById('search-button')
+        const searchInput = document.getElementById('search-input')
+        const movieInput = document.getElementById('movie-input')
+
+        function searchMovie() {
+          const inputText = searchInput.value
+          if (inputText.trim()) {
+            axios.get('/reviews/movie_search_modal/', {
+              params: {
+                inputText: inputText,
+              }
+            })
+              .then(function(res) {
+                const resultMovie = document.getElementById('result-movie')
+  
+                while ( resultMovie.hasChildNodes() ) {
+                  resultMovie.removeChild( resultMovie.firstChild ); 
+                }
+  
+                movies = res.data
+                for (const movie in movies) {
+                  const movieListRadio = document.createElement('input')
+                  movieListRadio.type = 'radio'
+                  movieListRadio.name = 'check_movie'
+                  movieListRadio.value = `${movies[movie]}`
+                  movieListRadio.addEventListener('click', function(event) {
+                      if (event.target.checked) {
+                          const movieInput = document.getElementById('movie-input')
+                          movieInput.value = `${event.target.value}`
+                          const movieHiddenInput = document.getElementById('movie-hidden-input')
+                          movieHiddenInput.value = `${movie}`
+                      }
+                  })
+                  const movieListRadioLabel = document.createElement('label')
+                  movieListRadioLabel.innerText = `${movies[movie]}`
+                  movieListRadioLabel.classList.add('ml-2')
+                  resultMovie.append(movieListRadio)
+                  resultMovie.append(movieListRadioLabel)
+                  resultMovie.append(document.createElement('br'))
+                  searchInput.value = null
+                }
+              })
+              .catch(function(err) {
+                console.error(err)
+              })
+          }
+        }
+
+        movieInput.addEventListener('click', searchMovie)
+        searchButton.addEventListener('click', searchMovie)
+        searchInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                searchMovie()
+            }
+        })
+
+
+        const saveButton = document.getElementById('save-button')
+        const closeButton = document.getElementById('close-button')
+
+        function appearButton() {
+            const formDiv = document.getElementById('form-div')
+            const writingButton = document.createElement('input')
+            writingButton.type = 'submit'
+            writingButton.classList.add('btn', 'btn-sm', 'btn-dark')
+            writingButton.value = 'REVIEW CREATE'
+            const submitValue = document.createElement('input')
+            submitValue.type = 'hidden'
+            const movieHiddenInput = document.getElementById('movie-hidden-input')
+            submitValue.value = movieHiddenInput.value
+            submitValue.name = 'movie_pk'
+            while ( formDiv.hasChildNodes() ) {
+                formDiv.removeChild( formDiv.firstChild ); 
+            }
+            const resultMovie = document.getElementById('result-movie')
+            while ( resultMovie.hasChildNodes() ) {
+                resultMovie.removeChild( resultMovie.firstChild ); 
+            }
+            formDiv.append(submitValue)
+            formDiv.append(writingButton)
+        }
+
+        saveButton.addEventListener('click', function() {
+          if (movieInput.value != '') {
+            appearButton()
+          }
+        })
+        closeButton.addEventListener('click', function() {
+          if (movieInput.value != '') {
+            appearButton()
+          }
+        })
+
+    </script>
+{% endblock %}

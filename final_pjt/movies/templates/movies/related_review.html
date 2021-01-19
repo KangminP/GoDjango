@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% load bootstrap_pagination %}
+
+{% block content %}
+<h1 class="d-flex justify-content-center py-5 text-dark">REVIEW LIST</h1>
+
+<div class="mb-3 py-4" id="form-div">
+  <div>
+    <form action="{% url 'reviews:search_review' %}" method="GET" class="float-left">
+        <input type="text" name="word">
+        <button type="submit" class="btn btn-dark btn-sm align-baseline">SEARCH</button>
+    </form>
+  </div>
+  <a class="btn btn-sm btn-dark float-right" href="{% url 'movies:movie_detail' movie.pk %}" role="button">BACK</a>
+  <a class="btn btn-sm btn-dark float-right mr-1" href="{% url 'reviews:movie_search' %}" role="button">CREATE</a>
+</div>
+
+<table class="table">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col"></th>
+        <th scope="col">제목</th>
+        <th scope="col">글쓴이</th>
+        <th scope="col">작성일자</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for review in page_obj %}
+      <tr>
+        <th scope="row">{{ review.pk }}</th>
+        <td><a class="text-body" href="{% url 'reviews:detail_review' review.pk %}">{{ review.title }}</a></td>
+        <td>{{ review.review_user }}</td>
+        <td>{{ review.updated_at|date:'y.m.d G:i' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+</table>
+
+
+<div class="d-flex justify-content-center mt-5 mb-2">
+    {% bootstrap_paginate page_obj range=5 show_prev_next="true" show_first_last="true" %}
+</div>
+
+{% endblock %}
