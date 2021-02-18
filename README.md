@@ -47,7 +47,7 @@
 
 ### 3. 초기 데이터베이스 모델링(ERD)
 
-![ERD](ERD.jpeg)
+![초기ERD](C:\Users\kangmin\Desktop\Dev\GitHub\GoDjango\초기ERD.jpg)
 
 
 
