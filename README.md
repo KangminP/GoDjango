@@ -53,7 +53,7 @@
 
 ### 4. 배포 서버 URL
 
-![초기ERD](C:\Users\KANGMIN\Desktop\SSAFY\final_pjt\초기ERD.jpg)
+http://fast-chamber-77905.herokuapp.com/
 
 
 
